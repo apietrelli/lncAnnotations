@@ -1,4 +1,4 @@
-# lncAnnotations
+## lncAnnotations
 
 ## Note from workflow
 
