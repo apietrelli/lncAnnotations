@@ -1,8 +1,10 @@
 # lncAnnotations
 
+Aim: Re-annotate probe from Human gene 1.0 chip for lncRNA discovery
+
 ## Note from workflow
 
-## generate fasta file from probe.tsv >>> downloaded from Affx  
+### generate fasta file from probe.tsv >>> downloaded from Affy  
 ```
 awk 'BEGIN{FS="\t";OFS="\t"}{print ">probe_"$1"_"$2"_"$3"_"$4"_"$5,$6}' probes.gene10st.tsv | tr '\t' '\n' > HuGene-1_0-st-v1.hg19.probe.mod.fa
 ```
@@ -15,6 +17,7 @@ cut -f1 HuGene-1_0-st-v1.hg19.probe.tab/HuGene-1_0-st-v1.hg19.probe.tab | sort| 
 ```
 
 ### How many probes are in the file?
+
 ```
 grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 861493
@@ -28,6 +31,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 # ./bowtie -f ./HuGene-1_0-st-v1.hg19.probe.fa/HuGene-1_0-st-v1.hg19.probe.fa -k 1 -m 1 -v 0 ~/Downloads/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set -S HuGene-1_0-st-v1.hg19.probe.mapped.sam
 ######
 ```
+
 #### dowload index bowtie2 from bowtie website
 
 ## Uniquely mapped reads only
@@ -50,7 +54,7 @@ samtools flagstat HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
 
 # -F 4 filter all reads with one or more secondary alignments
 # extract XS
-# flagstat: statistics relative to bam file 
+# flagstat: statistics relative to bam file
 
 716191 + 0 in total (QC-passed reads + QC-failed reads)
 0 + 0 secondary
