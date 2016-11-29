@@ -1,17 +1,20 @@
-## lncAnnotations
+# lncAnnotations
 
 ## Note from workflow
 
 ## generate fasta file from probe.tsv >>> downloaded from Affx  
+```
 awk 'BEGIN{FS="\t";OFS="\t"}{print ">probe_"$1"_"$2"_"$3"_"$4"_"$5,$6}' probes.gene10st.tsv | tr '\t' '\n' > HuGene-1_0-st-v1.hg19.probe.mod.fa
+```
+Some probe in probe.tsv are duplicated because “cover” different transcript clusters
 
-## Some probe in probe.tsv are duplicated because “cover” different transcript clusters
-## How many unique probe are within the probe.tsv?
+### How many unique probe are within the probe.tsv?
+```
 cut -f1 HuGene-1_0-st-v1.hg19.probe.tab/HuGene-1_0-st-v1.hg19.probe.tab | sort| uniq | wc
 804956
+```
 
-## How many probes are in the file?
-
+### How many probes are in the file?
 ```
 grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 861493
@@ -25,7 +28,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 # ./bowtie -f ./HuGene-1_0-st-v1.hg19.probe.fa/HuGene-1_0-st-v1.hg19.probe.fa -k 1 -m 1 -v 0 ~/Downloads/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set -S HuGene-1_0-st-v1.hg19.probe.mapped.sam
 ######
 ```
-## >>> dowload index bowtie2 from bowtie website
+#### dowload index bowtie2 from bowtie website
 
 ## Uniquely mapped reads only
 1. Bowtie mapping
