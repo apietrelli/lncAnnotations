@@ -14,7 +14,7 @@ cut -f1 HuGene-1_0-st-v1.hg19.probe.tab/HuGene-1_0-st-v1.hg19.probe.tab | sort| 
 grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 861493
 
-
+```
 #### NOT RUN ####
 # bowtie [options]* ebwt.library {-1 mate1 -2 mate2 | --12 read | sequenza ] []
 # -f                 query input files are (multi-)FASTA .fa/.mfa
@@ -23,7 +23,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 # bowtie -f [FASTA] -k 1 -m 1 ebwt[senza estensione] ### valido per Bowtie 1
 # ./bowtie -f ./HuGene-1_0-st-v1.hg19.probe.fa/HuGene-1_0-st-v1.hg19.probe.fa -k 1 -m 1 -v 0 ~/Downloads/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set -S HuGene-1_0-st-v1.hg19.probe.mapped.sam
 ######
-
+```
 # >>> dowload index bowtie2 from bowtie website
 
 
