@@ -31,7 +31,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 #### dowload index bowtie2 from bowtie website
 
 ## Uniquely mapped reads only
-1. Bowtie mapping
+* Bowtie mapping
 ```
 ./bowtie2-2.2.9/bowtie2 -x ~/Downloads/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index -p 4 -U HuGene-1_0-st-v1.hg19.probe.mod.fa -f  > HuGene-1_0-st-v1.hg19.probe.mapped.sam
 
@@ -43,7 +43,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 90.52% overall alignment rate
 ```
 
-2. samtools
+* samtools
 ```
 samtools view -Sb HuGene-1_0-st-v1.hg19.probe.mapped.sam | samtools view -F 4 -h - | grep -v "XS:" | samtools view -b - > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
 samtools flagstat HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
