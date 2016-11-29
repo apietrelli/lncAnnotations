@@ -95,3 +95,14 @@ http://bedtools.readthedocs.io/en/latest/content/example-usage.html
 ```
 bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
 ```
+
+# CDF from Brain array
+
+* 29 novembrer 2016
+In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp the guys from University of Michigan, have released a custom CDF based on GENCODE 25 (last uptated annotation) containing **protein coding** and **non-coding** transcripts.
+
+We downloaded the entire package for the **TRANSCRIPT** version.
+
+1. go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
+2. Download GENECODET package
+3. Saved in Dropbox
