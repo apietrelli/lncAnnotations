@@ -16,7 +16,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 
 
 #### NOT RUN ####
-# bowtie [options]* <ebwt> {-1 <m1> -2 <m2> | --12 <r> | <s>} [<hit>]
+# bowtie [options]* <ebwt> {-1 <m1> -2 <m2> | --12 <r> | <s>} []
 # -f                 query input files are (multi-)FASTA .fa/.mfa
 # -k <int>           report up to <int> good alignments per read (default: 1)
 # -m <int>           suppress all alignments if > <int> exist (def: no limit)
