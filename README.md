@@ -32,10 +32,12 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 ######
 ```
 
-#### dowload index bowtie2 from bowtie website
+#### download index bowtie2 from bowtie website
 
 ## Uniquely mapped reads only
+
 * Bowtie mapping
+
 ```
 ./bowtie2-2.2.9/bowtie2 -x ~/Downloads/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index -p 4 -U HuGene-1_0-st-v1.hg19.probe.mod.fa -f  > HuGene-1_0-st-v1.hg19.probe.mapped.sam
 
@@ -48,6 +50,7 @@ grep ">" HuGene-1_0-st-v1.hg19.probe.mod.fa | wc
 ```
 
 * samtools
+
 ```
 samtools view -Sb HuGene-1_0-st-v1.hg19.probe.mapped.sam | samtools view -F 4 -h - | grep -v "XS:" | samtools view -b - > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
 samtools flagstat HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
@@ -73,11 +76,12 @@ samtools flagstat HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam
 
 ## Model for Samtools filtering procedure
 ### (a.k.a. 2). Filtering those reads with multiple alignment reported (XS: present)
+
 ```
-# samtools view -H output.bam > header.sam
-# samtools view -F 4 output.bam | grep -v "XS:" | cat header.sam - | \
-# samtools view -b - > unique.bam
-# rm header.sam
+samtools view -H output.bam > header.sam
+samtools view -F 4 output.bam | grep -v "XS:" | cat header.sam - | \
+samtools view -b - > unique.bam
+rm header.sam
 ```
 
 ## BEDTools download
@@ -99,10 +103,19 @@ bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-
 # CDF from Brain array
 
 * 29 novembrer 2016
-In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp the guys from University of Michigan, have released a custom CDF based on GENCODE 25 (last uptated annotation) containing **protein coding** and **non-coding** transcripts.
+
+In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp guys from University of Michigan, have released a custom CDF based on GENCODE 25 (last updated annotation) containing **protein coding** and **non-coding** transcripts.
 
 We downloaded the entire package for the **TRANSCRIPT** version.
 
 1. go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
 2. Download GENECODET package
-3. Saved in Dropbox
+3. Save in Dropbox path:lncrna.annotations/hugene10st_Hs_GENECODET_21.0.0
+
+## Probe filter strategy
+
+dakjfLAnfa
+
+```
+# Merge annotation and sequence information
+join -t "     " <(sort -k1,1 hugene10st_Hs_GENECODET_desc.txt) <(sort -k1,1 hugene10st_Hs_GENECODET_probe_tab) > hugene10st_Hs_GENECODET_desc_probe_tab.join.tsv
