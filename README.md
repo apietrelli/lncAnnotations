@@ -131,8 +131,16 @@ Add probe.id as in the merged file to probe_tab file and filter them
 
 ```
 # Add probe id
-awk 'BEGIN{FS="\t";OFS="\t"}{print $0,$2"_"$3"_"$5}' hugene10st_Hs_GENECODET_probe_tab > hugene10st_Hs_GENECODET_probe_tab.probe_id
+awk 'BEGIN{FS="\t";OFS="\t"}{print $2"_"$3"_"$5,$0}' hugene10st_Hs_GENECODET_probe_tab > hugene10st_Hs_GENECODET_probe_tab.probe_id
 
-# Remove the duplicated probe
-grep -v -f probe.dup.id -w hugene10st_Hs_GENECODET_probe_tab.probe_id > hugene10st_Hs_GENECODET_probe_tab.flt.probe_id
+# Put index on probe id duplicated
+awk 'BEGIN{FS="\t";OFS="\t"}{print $0,"1"}' probe.dup.id > probe.dup.id.index
+
+# Join between probe_tab.probe_id and probe duplicated file
+join -t "     " <(sort -k1,1 probe.dup.id.index) <(sort -k1,1 hugene10st_Hs_GENECODET_probe_tab.probe_id) > hugene10st_Hs_GENECODET_probe_tab.probe_id.index
+
+# Filter the duplicated one (those with index == 1 in the 8th column)
+awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' hugene10st_Hs_GENECODET_probe_tab.probe_id.index > hugene10st_Hs_GENECODET_probe_tab.flt.probe_id
 ```
+
+Resulting probe_tab file without probes in more than one ENSG unit **hugene10st_Hs_GENECODET_probe_tab.flt.probe_id**
