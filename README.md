@@ -117,7 +117,7 @@ We downloaded the entire package for the **TRANSCRIPT** version.
 check awk split sintax at https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions
 some examples of join sintax at http://www.theunixschool.com/2012/01/join-command.html
 
-N.B. "<" within the join command open sub-procedures to be run before joining
+N.B. "<(COMMAND)" within the join command open sub-procedures to be run before joining
 
 ```
 # Merge annotation and sequence information
