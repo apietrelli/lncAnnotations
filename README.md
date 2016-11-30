@@ -115,6 +115,7 @@ We downloaded the entire package for the **TRANSCRIPT** version.
 ## Probe filter strategy
 
 check awk split syntax at https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions
+
 some examples of join syntax at http://www.theunixschool.com/2012/01/join-command.html
 
 N.B. "<(COMMAND)" within the join command open sub-procedures to be run before joining
@@ -131,6 +132,7 @@ Add probe.id as in the merged file to probe_tab file and filter them
 ```
 # Add probe id
 awk 'BEGIN{FS="\t";OFS="\t"}{print $0,$2"_"$3"_"$5}' hugene10st_Hs_GENECODET_probe_tab > hugene10st_Hs_GENECODET_probe_tab.probe_id
-# Remove the probe duplicated
+
+# Remove the duplicated probe
 grep -v -f probe.dup.id -w hugene10st_Hs_GENECODET_probe_tab.probe_id > hugene10st_Hs_GENECODET_probe_tab.flt.probe_id
 ```
