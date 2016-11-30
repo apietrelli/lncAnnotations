@@ -125,3 +125,5 @@ join -t "     " <(sort -k1,1 hugene10st_Hs_GENECODET_desc.txt) <(sort -k1,1 huge
 
 awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print anno[1],$1,$3"_"$4"_"$6,$0}' hugene10st_Hs_GENECODET_desc_probe_tab.join.tsv | cut -f 1,3 | sort -k2,2 | uniq | cut -f2 | sort | uniq -d > probe.dup.id
 ```
+
+sdjnfldskflsdjf
