@@ -145,12 +145,12 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' hugene10st_Hs_GENECODET_
 
 Resulting probe_tab file without probes in more than one ENSG unit **hugene10st_Hs_GENECODET_probe_tab.flt.probe_id**
 
-Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
-then run perl script
+### Filter probe-threshold
+
+We now filter those probset that contains less than 3 probes after the first filter.
 
 ```
- sed "s/        /,/" hugene10st_Hs_GENECODET_desc.txt > hugene10st_Hs_GENECODET_desc.csv
- perl ./../convertProbesetCSV_differentInput.pl hugene10st_Hs_GENECODET_desc.csv hugene10st_Hs_GENECODET.flt.probe_th.probe_tab hugene10st_Hs_GENECODET.flt.probe_th.flat
-```
+# Count the number of row, representing the probe, for each probeset
+cut -f2 hugene10st_Hs_GENECODET_probe_tab.flt.probe_id | sort | uniq -c | sed 's/^ *//;s/ /     /' > hugene10st_Hs_GENECODET_probe_tab.flt.probeset-count
 
-Got to R and run flat2Cdf
+# Select only those probeset with 4 or more probes within
