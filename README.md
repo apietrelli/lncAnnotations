@@ -145,7 +145,7 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' hugene10st_Hs_GENECODET_
 
 Resulting probe_tab file without probes in more than one ENSG unit **hugene10st_Hs_GENECODET_probe_tab.flt.probe_id**
 
-### Filter probe-threshold
+### Filter probe-threshold AND CREATION OF ANNTOATION FILE >>> FULL INFO
 
 We now filter those probset that contains less than 3 probes after the first filter.
 
@@ -247,6 +247,6 @@ make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Ho
 ```
 # R CMD build --force gene1.0st.lncrna.genes.v21cdf
 # R CMD INSTALL gene1.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
-library(gene1.0st.probelev.r4.pl.v3cdf)
+library(gene1.0st.lncrna.genes.v21cdf)
 ```
 5. run affy package & good luck
