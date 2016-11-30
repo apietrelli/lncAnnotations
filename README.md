@@ -108,7 +108,7 @@ In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_downlo
 
 We downloaded the entire package for the **TRANSCRIPT** version.
 
-1. go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
+1. Go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
 2. Download GENECODET package
 3. Save in Dropbox path:lncrna.annotations/hugene10st_Hs_GENECODET_21.0.0
 
