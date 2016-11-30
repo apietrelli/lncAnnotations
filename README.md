@@ -125,3 +125,12 @@ join -t "     " <(sort -k1,1 hugene10st_Hs_GENECODET_desc.txt) <(sort -k1,1 huge
 
 awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print anno[1],$1,$3"_"$4"_"$6,$0}' hugene10st_Hs_GENECODET_desc_probe_tab.join.tsv | cut -f 1,3 | sort -k2,2 | uniq | cut -f2 | sort | uniq -d > probe.dup.id
 ```
+
+Add probe.id as in the merged file to probe_tab file and filter them
+
+```
+# Add probe id
+awk 'BEGIN{FS="\t";OFS="\t"}{print $0,$2"_"$3"_"$5}' hugene10st_Hs_GENECODET_probe_tab > hugene10st_Hs_GENECODET_probe_tab.probe_id
+# Remove the probe duplicated
+grep -v -f probe.dup.id -w hugene10st_Hs_GENECODET_probe_tab.probe_id > hugene10st_Hs_GENECODET_probe_tab.flt.probe_id
+```
