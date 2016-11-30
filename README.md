@@ -198,3 +198,17 @@ make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Ho
 library(gene1.0st.lncrna.genes.v21cdf)
 ```
 5. run affy package & good luck
+
+# Creating BED file for probes (mapping to IGV)
+
+1. create tab delimited file with probeID_X_Y  chrom start end
+
+```
+awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene10st_Hs_GENECODET_mapping.txt | sort | uniq > hugene10st_Hs_GENECODET_mapping.bed
+```
+2. select only those probes included in (merged) flat file
+
+```
+cut -f 1 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | cut -d "_" -f 1,2 | sed "s/  /_/" | sort | uniq > selected.probes
+join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f2,5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
+```
