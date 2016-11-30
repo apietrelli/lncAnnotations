@@ -170,7 +170,7 @@ Go to R and run flat2Cdf
 
 1. Load function from file create.custom.CDF.R  
 
-  ```
+```
 #example: flat2Cdf(file="hjay.r1.flat",chipType="hjay",tag="r1,TC")
 #file: assumes header...better perhaps to have ... that passes to read.table?; requires header X, Y
 #ucol: unit column
