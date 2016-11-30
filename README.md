@@ -154,3 +154,16 @@ We now filter those probset that contains less than 3 probes after the first fil
 cut -f2 hugene10st_Hs_GENECODET_probe_tab.flt.probe_id | sort | uniq -c | sed 's/^ *//;s/ /     /' > hugene10st_Hs_GENECODET_probe_tab.flt.probeset-count
 
 # Select only those probeset with 4 or more probes within
+awk 'BEGIN{FS="\t";OFS="\t"}{if ($1>=4)print}'  hugene10st_Hs_GENECODET_probe_tab.flt.probeset-count | cut -f2> hugene10st_Hs_GENECODET_probe_tab.flt.probe_th.probeset_id
+```
+
+Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
+
+then run perl script
+
+```
+sed "s/        /,/" hugene10st_Hs_GENECODET_desc.txt > hugene10st_Hs_GENECODET_desc.csv
+perl ./../convertProbesetCSV_differentInput.pl hugene10st_Hs_GENECODET_desc.csv hugene10st_Hs_GENECODET.flt.probe_th.probe_tab hugene10st_Hs_GENECODET.flt.probe_th.flat
+```
+
+Go to R and run flat2Cdf
