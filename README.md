@@ -210,5 +210,5 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene10st_Hs
 
 ```
 cut -f 1 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | cut -d "_" -f 1,2 | sed "s/  /_/" | sort | uniq > selected.probes
-join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f2,5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
+join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
 ```
