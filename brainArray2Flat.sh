@@ -129,10 +129,10 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' "$OUT"_probe_tab.probe_i
 ## 3- Probeset filtering ####
 echo "[Probeset Filtering] [`date +%c`] Filter probeset below the probe threshold number"
 echo "[Probeset Filtering] Count the number of row, representing the probes, for each probeset"
-cut -f2 "$OUT"_probe_tab.probe_flt | sort | uniq -c | sed 's/^ *//;s/ / /' > "$OUT"_probe_tab.probe_flt.probeset-count
+cut -f2 "$OUT"_probe_tab.probe_flt | sort | uniq -c | sed $'s/^ *//;s/ /\t/' > "$OUT"_probe_tab.probe_flt.probeset-count
 
 echo "[Probeset Filtering] Select only those probeset with $N_PROBE_TH or more probes within"
-awk -v n_probe_th=$N_PROBE_TH 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$n_probe_th)print}'  "$OUT"_probe_tab.probe_flt.probeset-count | cut -d " " -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
+awk -v n_probe_th=$N_PROBE_TH 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$n_probe_th)print}'  "$OUT"_probe_tab.probe_flt.probeset-count | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
 
 echo "[Probeset Filtering] Filter failed probeset identified in probeset filtering"
 join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt | sort -k1,1) <(sort -k1,1 "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id) | cut -f2- > "$OUT"_probe_tab.probe_flt.probeset_flt

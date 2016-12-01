@@ -2,7 +2,93 @@
 
 Aim: Re-annotate probe from Human gene 1.0 chip for lncRNA discovery
 
-## Note from workflow
+# CDF from Brain array
+
+* 29 novembrer 2016
+
+In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp guys from University of Michigan, have released a custom CDF based on GENCODE 25 (last updated annotation) containing **protein coding** and **non-coding** transcripts.
+
+We downloaded the entire package for the **TRANSCRIPT** version.
+
+1. Go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
+2. Download GENECODET package
+3. Save in Dropbox path:lncrna.annotations/hugene10st_Hs_GENECODET_21.0.0
+
+## Probe filter strategy and Flat file creation
+
+We applied 2 filters on the probe/probeset downloaded from Brain Array site.
+
+1. Probe mapping multiple ENSGENE element will be filtered out
+2. Probeset with less than 4 probes will be filtered out
+
+To apply those filters and to produce a Flat file for the next procedure, we developed a script named brainArray2Flat.sh
+
+### Example brainArray2Flat.sh command-line for Human Gene 1.0 Array
+```shell
+./brainArray2Flat.sh -p hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_probe_tab -d hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_desc.txt -o test
+```
+
+It will produce a **test.flat** file suitable for falt2cdf script
+
+## Flat to CDF procedure
+
+Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
+
+then run perl script
+
+```shell
+sed "s/        /,/" hugene10st_Hs_GENECODET_desc.txt > hugene10st_Hs_GENECODET_desc.csv
+perl ./../convertProbesetCSV_differentInput.pl hugene10st_Hs_GENECODET_desc.csv hugene10st_Hs_GENECODET.flt.probe_th.probe_tab hugene10st_Hs_GENECODET.flt.probe_th.flat
+```
+
+Go to R and run flat2Cdf
+
+1. Load function from file create.custom.CDF.R  
+
+```
+#example: flat2Cdf(file="hjay.r1.flat",chipType="hjay",tag="r1,TC")
+#file: assumes header...better perhaps to have ... that passes to read.table?; requires header X, Y
+#ucol: unit column
+#gcol: group column
+#col.class: column classes of file (see read.table); NOTE: needs check that right number?
+#splitn: parameter that controls the number of initial chunks that are unwrapped (number of characters of unit names used to keep units together for initial chunks)
+#rows:
+#cols:
+
+```
+2. Run function (be care: original flat2Cdf function put "," as tags >>> change to "."  )
+```
+library(affxparser)
+flat2Cdf("hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.flat", chipType="Gene1.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), xynames=c("X","Y"))
+```
+3. Make CDF package
+```
+library(makecdfenv)
+make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
+```
+4. install library then load into R
+```
+# R CMD build --force gene1.0st.lncrna.genes.v21cdf
+# R CMD INSTALL gene1.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
+library(gene1.0st.lncrna.genes.v21cdf)
+```
+5. run affy package & good luck
+
+# Creating BED file for probes (mapping to IGV)
+
+1. create tab delimited file with probeID_X_Y  chrom start end
+
+```
+awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene10st_Hs_GENECODET_mapping.txt | sort | uniq > hugene10st_Hs_GENECODET_mapping.bed
+```
+2. select only those probes included in (merged) flat file
+
+```
+cut -f 1 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | cut -d "_" -f 1,2 | sed "s/  /_/" | sort | uniq > selected.probes
+join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
+```
+
+# Mapping approach (Deprecated)
 
 ### generate fasta file from probe.tsv >>> downloaded from Affy  
 ```
@@ -98,117 +184,4 @@ http://bedtools.readthedocs.io/en/latest/content/example-usage.html
 ### Transform BAM probes into BED
 ```
 bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
-```
-
-# CDF from Brain array
-
-* 29 novembrer 2016
-
-In http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp guys from University of Michigan, have released a custom CDF based on GENCODE 25 (last updated annotation) containing **protein coding** and **non-coding** transcripts.
-
-We downloaded the entire package for the **TRANSCRIPT** version.
-
-1. Go to http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp
-2. Download GENECODET package
-3. Save in Dropbox path:lncrna.annotations/hugene10st_Hs_GENECODET_21.0.0
-
-## Probe filter strategy
-
-check awk split syntax at https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions
-
-some examples of join syntax at http://www.theunixschool.com/2012/01/join-command.html
-
-N.B. "<(COMMAND)" within the join command open sub-procedures to be run before joining
-
-```
-# Merge annotation and sequence information
-join -t "     " <(sort -k1,1 hugene10st_Hs_GENECODET_desc.txt) <(sort -k1,1 hugene10st_Hs_GENECODET_probe_tab) > hugene10st_Hs_GENECODET_desc_probe_tab.join.tsv
-
-awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print anno[1],$1,$3"_"$4"_"$6,$0}' hugene10st_Hs_GENECODET_desc_probe_tab.join.tsv | cut -f 1,3 | sort -k2,2 | uniq | cut -f2 | sort | uniq -d > probe.dup.id
-```
-
-Add probe.id as in the merged file to probe_tab file and filter them
-
-```
-# Add probe id
-awk 'BEGIN{FS="\t";OFS="\t"}{print $2"_"$3"_"$5,$0}' hugene10st_Hs_GENECODET_probe_tab > hugene10st_Hs_GENECODET_probe_tab.probe_id
-
-# Put index on probe id duplicated
-awk 'BEGIN{FS="\t";OFS="\t"}{print $0,"1"}' probe.dup.id > probe.dup.id.index
-
-# Join between probe_tab.probe_id and probe duplicated file
-join -t "     " <(sort -k1,1 probe.dup.id.index) <(sort -k1,1 hugene10st_Hs_GENECODET_probe_tab.probe_id) > hugene10st_Hs_GENECODET_probe_tab.probe_id.index
-
-# Filter the duplicated one (those with index == 1 in the 8th column)
-awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' hugene10st_Hs_GENECODET_probe_tab.probe_id.index > hugene10st_Hs_GENECODET_probe_tab.flt.probe_id
-```
-
-Resulting probe_tab file without probes in more than one ENSG unit **hugene10st_Hs_GENECODET_probe_tab.flt.probe_id**
-
-### Filter probe-threshold AND CREATION OF ANNTOATION FILE >>> FULL INFO
-
-We now filter those probset that contains less than 3 probes after the first filter.
-
-```
-# Count the number of row, representing the probe, for each probeset
-cut -f2 hugene10st_Hs_GENECODET_probe_tab.flt.probe_id | sort | uniq -c | sed 's/^ *//;s/ /     /' > hugene10st_Hs_GENECODET_probe_tab.flt.probeset-count
-
-# Select only those probeset with 4 or more probes within
-awk 'BEGIN{FS="\t";OFS="\t"}{if ($1>=4)print}'  hugene10st_Hs_GENECODET_probe_tab.flt.probeset-count | cut -f2> hugene10st_Hs_GENECODET_probe_tab.flt.probe_th.probeset_id
-```
-
-Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
-
-then run perl script
-
-```
-sed "s/        /,/" hugene10st_Hs_GENECODET_desc.txt > hugene10st_Hs_GENECODET_desc.csv
-perl ./../convertProbesetCSV_differentInput.pl hugene10st_Hs_GENECODET_desc.csv hugene10st_Hs_GENECODET.flt.probe_th.probe_tab hugene10st_Hs_GENECODET.flt.probe_th.flat
-```
-
-Go to R and run flat2Cdf
-
-1. Load function from file create.custom.CDF.R  
-
-```
-#example: flat2Cdf(file="hjay.r1.flat",chipType="hjay",tag="r1,TC")
-#file: assumes header...better perhaps to have ... that passes to read.table?; requires header X, Y
-#ucol: unit column
-#gcol: group column
-#col.class: column classes of file (see read.table); NOTE: needs check that right number?
-#splitn: parameter that controls the number of initial chunks that are unwrapped (number of characters of unit names used to keep units together for initial chunks)
-#rows:
-#cols:
-
-```
-2. Run function (be care: original flat2Cdf function put "," as tags >>> change to "."  )
-```
-library(affxparser)
-flat2Cdf("hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.flat", chipType="Gene1.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), xynames=c("X","Y"))
-```
-3. Make CDF package
-```
-library(makecdfenv)
-make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
-```
-4. install library then load into R
-```
-# R CMD build --force gene1.0st.lncrna.genes.v21cdf
-# R CMD INSTALL gene1.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
-library(gene1.0st.lncrna.genes.v21cdf)
-```
-5. run affy package & good luck
-
-# Creating BED file for probes (mapping to IGV)
-
-1. create tab delimited file with probeID_X_Y  chrom start end
-
-```
-awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene10st_Hs_GENECODET_mapping.txt | sort | uniq > hugene10st_Hs_GENECODET_mapping.bed
-```
-2. select only those probes included in (merged) flat file
-
-```
-cut -f 1 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | cut -d "_" -f 1,2 | sed "s/  /_/" | sort | uniq > selected.probes
-join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
 ```
