@@ -13,7 +13,7 @@ get_file_name_from_path() {
 # - 01/12/2016 : Version 1.0
 ######################
 usage() {
-	echo -e '\nbrainArray2Flat - Coversion tool from Brain Array package to Flat file\nDESCRIPTION: This tool is an automatic procedure to convert the "probe_tab" and "desc" files to a Flat file for CDF creation. Several filters will be implemented to select probes and probeset to generate a "UNIQUE" signal.\nUSAGE: brainArray2Flat.sh -d <G.VCFs_DIRECTORY> -o <OUT_FILENAME> [ -i <INTERVAL_LIST> ; -d <INT> ] [-h]\n\nNOTE: Please use ABSOLUTE path for every input file !!!\n'
+	echo -e '\nbrainArray2Flat - Coversion tool from Brain Array package to Flat file\nDESCRIPTION: This tool is an automatic procedure to convert the "probe_tab" and "desc" files to a Flat file for CDF creation. Several filters will be implemented to select probes and probeset to generate a "UNIQUE" signal.\nUSAGE: brainArray2Flat.sh -p <FILE.probe_tab> -d <FILE.desc.txt> -o <OUT_FILENAME> [ -n <MIN_PROBES_NUMBER> ] [-h]\n'
 	exit
 }
 
@@ -21,34 +21,27 @@ help(){
         echo "
 	Program: brainArray2Flat - Coversion tool from Brain Array package to Flat file
         This pipeline convert Brain Array Custom CDF package files (http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp) to a Flat file.
+  INPUT:
+  1. Probe_tab file (*_probe_tab from BrainArray CDF)
+  2. Probe set Description file (*_desc.txt from BrainArray CDF)
+  3. Min number of probes to select a probeset (Optional)
+
 	OUTPUT:
 	1. Flat file
 
-	Database and SW version:
-
-		- Software
-		GATK version 	= GATK/3.3.0
-
-		- Variant Annotation
-		GATK bundle	= 2.8
-		dbsnp		= 138
-		HapMap		=
-		1000G		=
-
-	Usage:   ExoMe_walker3.sh -d <G.VCFs_DIRECTORY> -o <OUT_FILENAME> [ -i <INTERVAL_LIST> ; -d <INT> ] [-h ]
+	Usage:   brainArray2Flat.sh -p <FILE.probe_tab> -d <FILE.desc.txt> -o <OUT_FILENAME> [ -n <MIN_PROBES_NUMBER> ] [-h]
 
 	Flag:
-		-d/--dir        PATH	Path were all the g.vcf files are stored
-	        -o/--out        PREFIX  Output prefix name
-		-i/--interval   BED3	File containing the regions where the SNP call will be performed (chr,start,end)
+		-p/--probe_tab  FILE	Probe tab file from Brain Array CDF package
+    -d/--desc       FILE  Description file from Brain Array CDF package
+	  -o/--out        PREFIX  Output prefix name
 
 	Optional Flag:
-		-x/--dp		INT	Depth threshold to call LowCov SNP/INDEL [DEFAULT = 15]
-					Es. ALL VARIATION < 15 will be tagged as "LowCov"
+		-n/--probe_th		INT	Min number of probes used as threshold to select a probeset [DEFAULT = 4]
+					Es. ALL PROBESET <= 4 will be filtered out
 	Description:
-		-h/--help	flag	Help message with all the database and SW version used by this pipeline
+		-h/--help	      flag	Help message
 
-######  NOTE: Please use ABSOLUTE path for every input file !!!  ######
 "
 }
 
@@ -93,8 +86,8 @@ done
 
 # Test for existing files and correct flags
 
-if ! [ -d $PROBE_TAB ]; then
-        echo "ERROR: File $PROBE_TAB does not exist !!!"
+if ! [ -p $PROBE_TAB ]; then
+  echo "ERROR: File $PROBE_TAB does not exist !!!"
 	usage
 	exit 1
 fi
@@ -113,34 +106,7 @@ if [ $OUT = "NULL" ]; then
 	usage
 	exit 1
 fi
-######################## NOT WORKING
-# if ! [ -e $INTERVAL_LIST ]; then
-#         echo "ERROR: File $INTERVAL_LIST does not exist !!!"
-# 	usage
-# 	exit 1
-# else
-# 	INTERVAL_LIST_COL=`head -10 $INTERVAL_LIST | awk 'BEGIN{FS="\t";OFS="\t";TEST="PASS"}{if (NF!=3){TEST="FAIL"}}END{print TEST}'`
-# 	if [ $INTERVAL_LIST_COL = "FAIL" ]; then
-# 		echo "ERROR: File $INTERVAL_LIST does not seem to ba a BED3 !!!"
-# 		echo ""
-# 		echo "## Example line:"
-# 		head -1 $INTERVAL_LIST
-# 		echo "##"
-# 		usage
-# 		exit 1
-# 	fi
-# fi
-# if [ $INTERVAL_LIST = "NULL" ]; then
-#         echo "ERROR: Region interval file (BED3) file was NOT GIVEN !!!"
-# 	usage
-# 	exit 1
-# fi
-# if [[ $DP_TH != [0-9]* ]]; then
-# 	echo "ERROR: $DP_TH is not an integer for -d flag !!!"
-# 	usage
-# 	exit 1
-# fi
-################################### END NOT WORKING
+
 ### MAIN
 ### PIPELINE START ####
 ## 1- Merging
