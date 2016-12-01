@@ -132,7 +132,7 @@ echo "[Probeset Filtering] Count the number of row, representing the probes, for
 cut -f2 "$OUT"_probe_tab.probe_flt | sort | uniq -c | sed $'s/^ *//;s/ /\t/' > "$OUT"_probe_tab.probe_flt.probeset-count
 
 echo "[Probeset Filtering] Select only those probeset with $N_PROBE_TH or more probes within"
-awk -v n_probe_th=$N_PROBE_TH 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$n_probe_th)print}'  "$OUT"_probe_tab.probe_flt.probeset-count | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
+awk -v i="$N_PROBE_TH" 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$i)print}' "$OUT"_probe_tab.probe_flt.probeset-count | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
 
 echo "[Probeset Filtering] Filter failed probeset identified in probeset filtering"
 join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt | sort -k1,1) <(sort -k1,1 "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id) | cut -f2- > "$OUT"_probe_tab.probe_flt.probeset_flt
