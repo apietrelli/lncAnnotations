@@ -29,7 +29,7 @@ To apply those filters and to produce a Flat file for the next procedure, we dev
 ```
 ### try brainArray2Flat.sh command-line also for Human Gene 2.0 Array
 ```
-./brainArray2Flat.sh -p hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_probe_tab -d hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_desc.txt -o test
+./brainArray2Flat.sh -p ./hugene20st_Hs_GENECODET_probe_tab -d ./hugene20st_Hs_GENECODET_desc.txt -o hugene20st_Hs_GENECODET
 ```
 
 
@@ -37,11 +37,10 @@ It will produce a **test.flat** file suitable for falt2cdf script
 
 ## Flat to CDF procedure
 
-Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
-
+OLD SCRIPT: Follow instructions in aroma-affymetrix to Convert Affymetrix annotation to Flat file (Perl) at: http://www.aroma-project.org/howtos/create_CDF_from_scratch/
 then run perl script
-
-```shell
+```
+shell
 sed "s/        /,/" hugene10st_Hs_GENECODET_desc.txt > hugene10st_Hs_GENECODET_desc.csv
 perl ./../convertProbesetCSV_differentInput.pl hugene10st_Hs_GENECODET_desc.csv hugene10st_Hs_GENECODET.flt.probe_th.probe_tab hugene10st_Hs_GENECODET.flt.probe_th.flat
 ```
@@ -78,6 +77,16 @@ make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Ho
 library(gene1.0st.lncrna.genes.v21cdf)
 ```
 5. run affy package & good luck
+
+# Creating description file for master table
+
+```
+cut -f 5 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | sort | uniq | sed "/Group_ID/d" > selected.probesets.arraygene1st.cdf
+head -1 hugene10st_Hs_GENECODET_desc.txt > header.desc.txt
+join -t "" <(sort -k1,1 hugene10st_Hs_GENECODET_desc.txt) <(sort selected.probesets.arraygene1st.cdf) > hugene10st_Hs_ANNOTATION.provv.txt
+cat header.desc.txt hugene10st_Hs_ANNOTATION.provv.txt > hugene10st_Hs_ANNOTATION.txt
+rm header.desc.txt hugene10st_Hs_ANNOTATION.provv.txt
+```
 
 # Creating BED file for probes (mapping to IGV)
 
