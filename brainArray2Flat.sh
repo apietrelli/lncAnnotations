@@ -139,7 +139,7 @@ join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.prob
 
 ## 4- Generate Flat file ####
 echo "[Generate Flat file] [`date +%c`] Join filtered probe/probeset with Description file"
-join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt.probeset_flt | sort -k1,1) <(awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print $1,anno[1]}' $DESC | sort -k1,1) > tmp
+join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt.probeset_flt| sed '/Probe/d' | sort -k1,1) <(awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print $1,anno[1]}' $DESC | sort -k1,1) > tmp
 echo "[Generate Flat file] Arrange Flat file for correct interpretation in flat2CDF.R"
 awk 'BEGIN{FS="\t";OFS="\t"}{if (NR==1){print "Probe_ID", "X", "Y", "Probe_Sequence", "Group_ID", "Unit_ID"};print $2,$4,$5,$7,$1,$9}' tmp > $OUT.flat
 rm tmp
