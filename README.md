@@ -24,9 +24,14 @@ We applied 2 filters on the probe/probeset downloaded from Brain Array site.
 To apply those filters and to produce a Flat file for the next procedure, we developed a script named brainArray2Flat.sh
 
 ### Example brainArray2Flat.sh command-line for Human Gene 1.0 Array
-```shell
+```
 ./brainArray2Flat.sh -p hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_probe_tab -d hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_desc.txt -o test
 ```
+### try brainArray2Flat.sh command-line also for Human Gene 2.0 Array
+```
+./brainArray2Flat.sh -p hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_probe_tab -d hugene10st_Hs_GENECODET_21.0.0/hugene10st_Hs_GENECODET_desc.txt -o test
+```
+
 
 It will produce a **test.flat** file suitable for falt2cdf script
 
