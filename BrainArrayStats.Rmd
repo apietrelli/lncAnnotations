@@ -1,0 +1,114 @@
+---
+title: "lncRNA statistics"
+output:
+  html_notebook: default
+  html_document: default
+---
+
+## Statistics from BrainArray site
+
+We downloaded the raw annotatio file for Hugene1.0 and Hugene2.0 from the Brainarray site.
+
+To understand the nature of the transcripts remapped by the Brainarray, we generated the count from the **desc** file:
+
+- hugene10st_Hs_GENECODET_desc.txt
+- hugene20st_Hs_GENECODET_desc.txt
+
+and we created new file ready for R loading ancd plot
+
+```{r loading}
+library(ggplot2)
+library(data.table)
+library(dplyr)
+
+hugene1.0_file = "hugene10st_Hs_GENECODET_desc.count.tsv"
+hugene2.0_file = "hugene20st_Hs_GENECODET_desc.count.tsv"
+
+# Reannotated file - Results from filtering pipeline
+hugene1.0_reannot_file = "hugene10st_Hs_ANNOTATION.count.tsv"
+
+# Read the files
+hugene1.0 = fread(hugene1.0_file, 
+                  header = F, 
+                  col.names = c("count","class"))
+hugene2.0 = fread(hugene2.0_file, 
+                  header = F, 
+                  col.names = c("count","class"))
+
+hugene1.0_reannot = fread(hugene1.0_reannot_file, 
+                          header = F,
+                          col.names = c("count","class"))
+
+
+# Reorder cols
+setcolorder(hugene1.0, c("class", "count"))
+setcolorder(hugene2.0, c("class", "count"))
+setcolorder(hugene1.0_reannot, c("class", "count"))
+
+# Add chip label
+hugene1.0[,chip := "hugene1.0"]
+hugene2.0[,chip := "hugene2.0"]
+hugene1.0_reannot[,chip := "hugene1.0 Reannote"]
+
+## Merge datatables and add difference column
+# 1.0 vs 2.0
+merged_chip = merge(hugene1.0, hugene2.0, by = "class")
+merged_chip[,diff:=count.y-count.x]
+
+# 1.0 original vs 1.0 reannote
+hugene1.0_merged = merged_chip = merge(hugene1.0, hugene1.0_reannot, by = "class")
+hugene1.0_merged[,diff:=count.x-count.y]
+
+# Create melted dt for plot
+melted_merged_chip = melt(merged_chip, id.vars = c("class"), measure.vars  = "diff" )
+melted_merged_chip[,sign:=ifelse(value>=0,"+","-")]
+
+# Remove old header "Probe Set..."
+chip_stats = rbind(hugene1.0,hugene2.0)
+chip_stats = chip_stats[class!="Probe Set Name,Description"] 
+
+```
+
+
+```{r plot}
+ggplot(data = chip_stats,
+       aes (x = class,
+            y = count, 
+            fill = chip)) +
+        geom_bar(stat = "identity", position = "dodge") +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1, 
+                                         vjust = 0.5,
+                                         size = 15))+
+        ggtitle("Chip transcript class distribution in Brain Array")
+ggsave("Transcript_distribution.BrainArray.png",
+       width = 10,
+       height = 8)
+
+# Plot difference
+ggplot(data = melted_merged_chip,
+       aes (x = class,
+            y = value, 
+            fill = sign)) +
+        geom_bar(stat = "identity", position = "dodge") +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1, 
+                                         vjust = 0.5,
+                                         size = 15))+
+        ggtitle("HuGene2.0/HuGene1.0 deviation count in Brain Array")
+ggsave("Deviation_count.BrainArray.png",
+       width = 10,
+       height = 8)
+
+# Plot difference in hugene1.0 original vs reannote
+ggplot(data = hugene1.0_merged,
+       aes (x = class,
+            y = diff)) +
+        geom_bar(stat = "identity", position = "dodge") +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1, 
+                                         vjust = 0.5,
+                                         size = 15))+
+        ggtitle("Missing transcripts in HuGene1.0 reannote by function")
+
+```
