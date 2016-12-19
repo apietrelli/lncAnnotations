@@ -78,7 +78,7 @@ library(gene1.0st.lncrna.genes.v21cdf)
 ```
 5. run affy package & good luck
 
-# Creating description file for master table
+# Creating description file for master table gene 1.0st
 
 ```
 cut -f 5 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | sort | uniq | sed "/Group_ID/d" > selected.probesets.arraygene1st.cdf
@@ -88,18 +88,30 @@ cat header.desc.txt hugene10st_Hs_ANNOTATION.provv.txt > hugene10st_Hs_ANNOTATIO
 rm header.desc.txt hugene10st_Hs_ANNOTATION.provv.txt
 ```
 
+# Creating description file for master table gene 2.0st
+
+```
+cut -f 5 hugene20st_Hs_GENECODET.flat.NEW | sort | uniq | sed "/Group_ID/d" > selected.probesets.arraygene2st.cdf
+head -1 hugene20st_Hs_GENECODET_desc.txt > header.desc.txt
+join -t "" <(sort -k1,1 hugene20st_Hs_GENECODET_desc.txt) <(sort selected.probesets.arraygene2st.cdf) > hugene20st_Hs_ANNOTATION.provv.txt
+cat header.desc.txt hugene20st_Hs_ANNOTATION.provv.txt > hugene20st_Hs_ANNOTATION.txt
+rm header.desc.txt hugene20st_Hs_ANNOTATION.provv.txt
+```
+
 # Creating BED file for probes (mapping to IGV)
 
 1. create tab delimited file with probeID_X_Y  chrom start end
 
 ```
 awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene10st_Hs_GENECODET_mapping.txt | sort | uniq > hugene10st_Hs_GENECODET_mapping.bed
+### for gene 2.0st
+awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene20st_Hs_GENECODET_mapping.txt | sort | uniq > hugene20st_Hs_GENECODET_mapping.bed
 ```
 2. select only those probes included in (merged) flat file
 
 ```
-cut -f 1 hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.NOPERL.flat | cut -d "_" -f 1,2 | sed "s/  /_/" | sort | uniq > selected.probes
-join -t "      " <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene10st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene10st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
+cut -f 1 hugene20st_Hs_GENECODET.flat.NEW | sort | uniq > selected.probes
+join -t "" <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene20st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene20st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
 ```
 
 # Mapping approach (Deprecated)
