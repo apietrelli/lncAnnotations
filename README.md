@@ -63,6 +63,7 @@ Go to R and run flat2Cdf
 2. Run function (be care: original flat2Cdf function put "," as tags >>> change to "."  )
 ```
 library(affxparser)
+source("/Users/emagene/Dropbox/codes/github/lncAnnotations/flat2Cdf.R")
 flat2Cdf("hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.flat", chipType="Gene1.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), xynames=c("X","Y"))
 ```
 3. Make CDF package
@@ -113,6 +114,47 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if (NR>1) print $2,$4,$4+25,$5"_"$6}' hugene20st_Hs
 cut -f 1 hugene20st_Hs_GENECODET.flat.NEW | sort | uniq > selected.probes
 join -t "" <(awk 'BEGIN{FS="\t";OFS="\t"}{print $4,$0}' hugene20st_Hs_GENECODET_mapping.bed | sort -k1,1) selected.probes | cut -f 2-5 | sort | uniq > hugene20st_Hs_GENECODET_mapping.FILTERED.PROBES.bed
 ```
+
+## BEDTools download
+```
+curl http://bedtools.googlecode.com/files/BEDTools-2.26.0.tar.gz > BEDTools.tar.gz
+tar -zxvf BEDTools.tar.gz
+cd BEDTools
+make
+sudo cp bin/* /usr/local/bin/
+```
+### SEE examples
+http://bedtools.readthedocs.io/en/latest/content/example-usage.html
+
+### Transform BAM probes into BED
+```
+bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
+```
+
+# CDF ENSG_Only
+### create CDF file from original Brainarray selecting only those probes:
+### - whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
+### - included in the flat file generated from the original file
+### First: select unique ENSG in R
+```
+library(hugene10sthsentrezgcdf)
+x = ls(hugene10sthsentrezgcdf)
+library(org.Hs.eg.db)
+x1 = gsub("_at","",x)
+ensglist = sapply(x1,function(y) unlist(mget(y, org.Hs.egENSEMBL, ifnotfound=NA))[1])
+entrezg.sel = as.vector(sapply(selected, function(y) strsplit(y,"\\.")[[1]][1]))
+temp = ensglist[!is.na(ensglist)]
+write.table(temp, file="~/Dropbox/on.going.papers/lncrna.annotations/ENSG.selected.hugene10st.txt", row.names=F,col.names=F,sep="\t", quote=F)
+```
+### then run flat2CDF
+### REMEMBER: modify rows&cols to 1050 if gene10st, to 1600 if gene20st  
+
+
+
+
+
+
+
 
 # Mapping approach (Deprecated)
 
@@ -195,35 +237,3 @@ samtools view -F 4 output.bam | grep -v "XS:" | cat header.sam - | \
 samtools view -b - > unique.bam
 rm header.sam
 ```
-
-## BEDTools download
-```
-curl http://bedtools.googlecode.com/files/BEDTools-2.26.0.tar.gz > BEDTools.tar.gz
-tar -zxvf BEDTools.tar.gz
-cd BEDTools
-make
-sudo cp bin/* /usr/local/bin/
-```
-### SEE examples
-http://bedtools.readthedocs.io/en/latest/content/example-usage.html
-
-### Transform BAM probes into BED
-```
-bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
-```
-
-# CDF ENSG_Only
-### create CDF file from original Brainarray selecting only those probes:
-### - whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
-### - included in the flat file generated from the original file
-### First: select unique ENSG in R
-```
-library(hugene10sthsentrezgcdf)
-x = ls(hugene10sthsentrezgcdf)
-library(org.Hs.eg.db)
-x1 = gsub("_at","",x)
-ensglist = sapply(x1,function(y) unlist(mget(y, org.Hs.egENSEMBL, ifnotfound=NA))[1])
-entrezg.sel = as.vector(sapply(selected, function(y) strsplit(y,"\\.")[[1]][1]))
-temp = ensglist[!is.na(ensglist)]
-write.table(temp, file="~/Dropbox/on.going.papers/lncrna.annotations/ENSG.selected.hugene10st.txt", row.names=F,col.names=F,sep="\t", quote=F)
-```   
