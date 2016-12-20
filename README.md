@@ -211,3 +211,19 @@ http://bedtools.readthedocs.io/en/latest/content/example-usage.html
 ```
 bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
 ```
+
+# CDF ENSG_Only
+### create CDF file from original Brainarray selecting only those probes:
+### - whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
+### - included in the flat file generated from the original file
+### First: select unique ENSG in R
+```
+library(hugene10sthsentrezgcdf)
+x = ls(hugene10sthsentrezgcdf)
+library(org.Hs.eg.db)
+x1 = gsub("_at","",x)
+ensglist = sapply(x1,function(y) unlist(mget(y, org.Hs.egENSEMBL, ifnotfound=NA))[1])
+entrezg.sel = as.vector(sapply(selected, function(y) strsplit(y,"\\.")[[1]][1]))
+temp = ensglist[!is.na(ensglist)]
+write.table(temp, file="~/Dropbox/on.going.papers/lncrna.annotations/ENSG.selected.hugene10st.txt", row.names=F,col.names=F,sep="\t", quote=F)
+```   
