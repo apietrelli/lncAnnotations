@@ -138,8 +138,6 @@ sed '/^#/ d' gencode.v25.annotation.gtf > gencode.v25.annotation.noheader.gtf
 # add "transcript_id" field (mandatory for bed2gtf)
 awk '{ if ($0 ~ "transcript_id") print $0; else print $0" transcript_id \"\";"; }' gencode.v25.annotation.noheader.gtf > gencode.v25.annotation.noheader.wtrid.gtf
 gtf2bed < gencode.v25.annotation.noheader.wtrid.gtf > gencode.v25.annotation.bed
-
-
 ```
 
 
