@@ -131,6 +131,20 @@ http://bedtools.readthedocs.io/en/latest/content/example-usage.html
 bedtools bamtobed -i HuGene-1_0-st-v1.hg19.probe.mapped.unique.bam > HuGene-1_0-st-v1.hg19.probe.mapped.unique.bed
 ```
 
+### create BED file from Genecode.gtf
+```
+# download gencode.v25.annotation.gtf from genecode website
+# remove headers
+sed '/^#/ d' gencode.v25.annotation.gtf > gencode.v25.annotation.noheader.gtf
+# add "transcript_id" field (mandatory for bed2gtf)
+awk '{ if ($0 ~ "transcript_id") print $0; else print $0" transcript_id \"\";"; }' gencode.v25.annotation.noheader.gtf > gencode.v25.annotation.noheader.wtrid.gtf
+gtf2bed < gencode.v25.annotation.noheader.wtrid.gtf > gencode.v25.annotation.bed
+
+
+```
+
+
+
 # CDF ENSG_Only
 ### create CDF file from original Brainarray selecting only those probes:
 ### - whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
