@@ -32,7 +32,6 @@ To apply those filters and to produce a Flat file for the next procedure, we dev
 ./brainArray2Flat.sh -p ./hugene20st_Hs_GENECODET_probe_tab -d ./hugene20st_Hs_GENECODET_desc.txt -o hugene20st_Hs_GENECODET
 ```
 
-
 It will produce a **test.flat** file suitable for falt2cdf script
 
 ## Flat to CDF procedure
@@ -146,10 +145,28 @@ gtf2bed < gencode.v25.annotation.noheader.wtrid.gtf > gencode.v25.annotation.bed
 
 
 # CDF ENSG_Only
-### create CDF file from original Brainarray selecting only those probes:
-### - whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
-### - included in the flat file generated from the original file
-### First: select unique ENSG in R
+
+create CDF file from original Brainarray selecting only those probes:
+- whose Entrez GeneID match at least one ENSG (>>> discard secondary annoations)
+- included in the flat file generated from the original file
+
+## Brain array 2 Flat (ENSG_Only)
+
+### Download the brainarray ENSG v21 package from the brainarray site:
+
+* Gene 1.0
+
+http://www.affymetrix.com/estore/browse/products.jsp?productId=131453
+
+- Extract the package into Dropbox directory
+
+### Start the pipeline brainArray2Flat.sh
+
+```
+./brainArray2Flat.sh -p ~/Dropbox/lncrna.annotations/hugene10st_Hs_ENSG_21.0.0/hugene10st_Hs_ENSG_probe_tab -d ~/Dropbox/lncrna.annotations/hugene10st_Hs_ENSG_21.0.0/hugene10st_Hs_ENSG_desc.txt -o test
+```
+
+### Select unique ENSG that have ENTREZ ID in R
 ```
 library(hugene10sthsentrezgcdf)
 x = ls(hugene10sthsentrezgcdf)
@@ -160,7 +177,39 @@ entrezg.sel = as.vector(sapply(selected, function(y) strsplit(y,"\\.")[[1]][1]))
 temp = ensglist[!is.na(ensglist)]
 write.table(temp, file="~/Dropbox/on.going.papers/lncrna.annotations/ENSG.selected.hugene10st.txt", row.names=F,col.names=F,sep="\t", quote=F)
 ```
-### then run flat2CDF
+
+###
+
+```
+cut -f5 test.flat | sed 's/_at//' | sort | uniq > ENSG.test_flat.id
+awk 'BEGIN{FS="\t";OFS="\t"}{split($5,ensg,"_"); print ensg[1],$0}' test.flat | sort -k1,1 | uniq > ENSG_key.test_flat.join
+
+# How many element? (Probe in probesets)
+wc ENSG_key.test_flat.join
+599107
+# How many genes?
+cut -f1 ENSG_key.test_flat.join | sort | uniq | wc
+21727
+```
+
+### Join flat file with selected ENSG from R
+
+```
+join -t "     " ENSG_key.test_flat.join <(sort ENSG.selected.hugene10st.txt) > ENSG_key.test_flat
+
+# How many genes after filters?
+cut -f1 ENSG_key.test_flat | sort | uniq | wc
+17904
+
+```
+
+### Create a new FLAT file
+
+```
+cut -f 2- ENSG_key.test_flat | awk 'BEGIN{FS="\t";OFS="\t"}{if(NR==1) {print "Probe_ID","X","Y","Probe_Sequence","Group_ID","Unit_ID"; print $1,$2,$3,$4,$5,$5}else{print $1,$2,$3,$4,$5,$5}}' > ENSG_filter.flat
+```
+
+## Run flat2CDF
 ### REMEMBER: modify rows&cols to 1050 if gene10st, to 1600 if gene20st  
 
 
