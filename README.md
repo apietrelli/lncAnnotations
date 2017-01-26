@@ -32,7 +32,7 @@ To apply those filters and to produce a Flat file for the next procedure, we dev
 ./brainArray2Flat.sh -p ./hugene20st_Hs_GENECODET_probe_tab -d ./hugene20st_Hs_GENECODET_desc.txt -o hugene20st_Hs_GENECODET
 ```
 
-It will produce a **test.flat** file suitable for falt2cdf script
+It will produce a **.flat** file suitable for flat2cdf script
 
 ## Flat to CDF procedure
 
@@ -63,12 +63,14 @@ Go to R and run flat2Cdf
 ```
 library(affxparser)
 source("/Users/emagene/Dropbox/codes/github/lncAnnotations/flat2Cdf.R")
-flat2Cdf("hugene10st_Hs_GENECODET.flt.probe_th.seq.ENSG_Only.flat", chipType="Gene1.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), xynames=c("X","Y"))
+### remember: gene 1.0st >> 1050*1050 ; gene 2.0st >> 1600*1600
+flat2Cdf("hugene20st_Hs_GENECODET.NEAT1long.modified.flat", chipType="Gene2.0st.lncrna.genes.NEAT1mod", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1600, cols= 1600, xynames=c("X","Y"))
 ```
 3. Make CDF package
 ```
 library(makecdfenv)
 make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
+#make.cdf.package("Gene2.0st.lncrna.genes.NEAT1mod.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
 ```
 4. install library then load into R
 ```
