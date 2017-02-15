@@ -34,6 +34,7 @@ To apply those filters and to produce a Flat file for the next procedure, we dev
 
 It will produce a **.flat** file suitable for flat2cdf script
 ### N.B. remove X_Probe line!!!
+# vi hugene20st_Hs_GENECODET.flat >> / Probe [search "Probe"] >> dd [del line]
 
 
 ## Flat to CDF procedure
@@ -66,18 +67,19 @@ Go to R and run flat2Cdf
 library(affxparser)
 source("/Users/emagene/Dropbox/codes/github/lncAnnotations/flat2Cdf.R")
 ### remember: gene 1.0st >> 1050*1050 ; gene 2.0st >> 1600*1600
-flat2Cdf("hugene20st_Hs_GENECODET.NEAT1mod.flat", chipType="Gene2.0st.lncrna.genes.NEAT1mod", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1600, cols= 1600, xynames=c("X","Y"), ucol=5, gcol=5)
+### remember: gene-level annotation gcol=6, transcript-level annotation gcol=5)
+flat2Cdf("hugene20st_Hs_GENECODET.flat", chipType="Gene2.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1600, cols= 1600, xynames=c("X","Y"), ucol=5, gcol=5)
 ```
 3. Make CDF package
 ```
 library(makecdfenv)
 make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
-#make.cdf.package("Gene2.0st.lncrna.genes.NEAT1mod.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
+#make.cdf.package("Gene2.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
 ```
 4. install library then load into R
 ```
-# R CMD build --force gene1.0st.lncrna.genes.v21cdf
-# R CMD INSTALL gene1.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
+# R CMD build --force gene2.0st.lncrna.genes.v21cdf
+# R CMD INSTALL gene2.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
 library(gene1.0st.lncrna.genes.v21cdf)
 ```
 5. run affy package & good luck
