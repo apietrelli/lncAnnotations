@@ -130,6 +130,7 @@ awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' "$OUT"_probe_tab.probe_i
 echo "[Probeset Filtering] [`date +%c`] Filter probeset below the probe threshold number"
 echo "[Probeset Filtering] Count the number of row, representing the probes, for each probeset"
 cut -f2 "$OUT"_probe_tab.probe_flt | sort | uniq -c | sed $'s/^ *//;s/ /\t/' > "$OUT"_probe_tab.probe_flt.probeset-count
+### sed $'s/^ *//;s/ /\t/' replace space with tab
 
 echo "[Probeset Filtering] Select only those probeset with $N_PROBE_TH or more probes within"
 awk -v i="$N_PROBE_TH" 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$i)print}' "$OUT"_probe_tab.probe_flt.probeset-count | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
