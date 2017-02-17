@@ -107,43 +107,46 @@ fi
 ## 1- Merging
 echo "[Pipeline `date +%c`] START"
 echo "[Merging Probe-Desc] [`date +%c`] Merge annotation and sequence information"
-join -t $'\t' <(sort -k1,1 $DESC) <(sort -k1,1 $PROBE_TAB) > "$OUT"_desc_probe_tab.join.tsv
+join -t $'\t' <(sort -k1,1 $DESC) <(sort -k1,1 $PROBE_TAB) > "$OUT"_desc_probe_tab.join.tmp
 
 echo "[Merging Probe-Desc] [`date +%c`] Select probes mapping DIFFERENT ENSG element"
-awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print anno[1],$1,$3"_"$4,$0}' "$OUT"_desc_probe_tab.join.tsv | cut -f 1,3 | sort -k2,2 | uniq | cut -f2 | sort | uniq -d > "$OUT"_probe.dup.id
+awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print anno[1],$1,$3"_"$4,$0}' "$OUT"_desc_probe_tab.join.tmp | cut -f 1,3 | sort -k2,2 | uniq | cut -f2 | sort | uniq -d > "$OUT"_probe.dup.id.tmp
 
 ## 2- Probe filtering ####
 echo "[Probe Filtering] [`date +%c`] Filter ENSG overlapping probes"
 echo "[Probe Filtering] Add probe_id to probe_tab file"
-awk 'BEGIN{FS="\t";OFS="\t"}{print $2"_"$3,$0}' $PROBE_TAB > "$OUT"_probe_tab.probe_id
+awk 'BEGIN{FS="\t";OFS="\t"}{print $2"_"$3,$0}' $PROBE_TAB > "$OUT"_probe_tab.probe_id.tmp
 
 echo "[Probe Filtering] Put index (1 - if the probe is overlapping different ENSG) on probe_id duplicated"
-awk 'BEGIN{FS="\t";OFS="\t"}{print $0,"1"}' "$OUT"_probe.dup.id > "$OUT"_probe.dup.id.index
+awk 'BEGIN{FS="\t";OFS="\t"}{print $0,"1"}' "$OUT"_probe.dup.id.tmp > "$OUT"_probe.dup.id.index.tmp
 
 echo "[Probe Filtering] Join between "$OUT"_probe_tab.probe_id and probe duplicated file index"
-join -a 1 -t $'\t' <(sort -k1,1 "$OUT"_probe_tab.probe_id) <(sort -k1,1 "$OUT"_probe.dup.id.index) > "$OUT"_probe_tab.probe_id.index
+join -a 1 -t $'\t' <(sort -k1,1 "$OUT"_probe_tab.probe_id.tmp) <(sort -k1,1 "$OUT"_probe.dup.id.index.tmp) > "$OUT"_probe_tab.probe_id.index.tmp
 
 echo "[Probe Filtering] Filter the duplicated one (those with index == 1 in the 8th column)"
-awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' "$OUT"_probe_tab.probe_id.index > "$OUT"_probe_tab.probe_flt
+awk 'BEGIN{FS="\t";OFS="\t"}{if ($8!="1") {print $0} }' "$OUT"_probe_tab.probe_id.index.tmp > "$OUT"_probe_tab.probe_flt.tmp
 
 ## 3- Probeset filtering ####
 echo "[Probeset Filtering] [`date +%c`] Filter probeset below the probe threshold number"
 echo "[Probeset Filtering] Count the number of row, representing the probes, for each probeset"
-cut -f2 "$OUT"_probe_tab.probe_flt | sort | uniq -c | sed $'s/^ *//;s/ /\t/' > "$OUT"_probe_tab.probe_flt.probeset-count
+cut -f2 "$OUT"_probe_tab.probe_flt.tmp | sort | uniq -c | sed $'s/^ *//;s/ /\t/' > "$OUT"_probe_tab.probe_flt.probeset-count.tmp
 ### sed $'s/^ *//;s/ /\t/' replace space with tab
 
 echo "[Probeset Filtering] Select only those probeset with $N_PROBE_TH or more probes within"
-awk -v i="$N_PROBE_TH" 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$i)print}' "$OUT"_probe_tab.probe_flt.probeset-count | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id
+awk -v i="$N_PROBE_TH" 'BEGIN{FS="\t";OFS="\t"}{if ($1>=$i)print}' "$OUT"_probe_tab.probe_flt.probeset-count.tmp | cut -f2 > "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id.tmp
 
 echo "[Probeset Filtering] Filter failed probeset identified in probeset filtering"
-join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt | sort -k1,1) <(sort -k1,1 "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id) | cut -f2- > "$OUT"_probe_tab.probe_flt.probeset_flt
+join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt.tmp | sort -k1,1) <(sort -k1,1 "$OUT"_probe_tab.probe_flt.probeset_flt.probeset_id.tmp) | cut -f2- > "$OUT"_probe_tab.probe_flt.probeset_flt.tmp
 
 ## 4- Generate Flat file ####
 echo "[Generate Flat file] [`date +%c`] Join filtered probe/probeset with Description file"
-join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt.probeset_flt| sed '/Probe/d' | sort -k1,1) <(awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print $1,anno[1]}' $DESC | sort -k1,1) > tmp
+join -t $'\t' <(awk 'BEGIN{FS="\t";OFS="\t"}{print $2,$0}' "$OUT"_probe_tab.probe_flt.probeset_flt.tmp| sed '/Probe/d' | sort -k1,1) <(awk 'BEGIN{FS="\t";OFS="\t"}{split($2,anno,"|");print $1,anno[1]}' $DESC | sort -k1,1) > tmp.tmp
 echo "[Generate Flat file] Arrange Flat file for correct interpretation in flat2CDF.R"
-awk 'BEGIN{FS="\t";OFS="\t"}{if (NR==1){print "Probe_ID", "X", "Y", "Probe_Sequence", "Group_ID", "Unit_ID"};print $2,$4,$5,$7,$1,$9}' tmp > $OUT.flat
-rm tmp
+awk 'BEGIN{FS="\t";OFS="\t"}{if (NR==1){print "Probe_ID", "X", "Y", "Probe_Sequence", "Group_ID", "Unit_ID"};print $2,$4,$5,$7,$1,$9}' tmp.tmp > $OUT.flat
+
+echo "[Removing unnecessary files] Remove files used in the procedure"
+rm *.tmp
+
 
 echo "FILTERING COMPLETE"
 

@@ -66,21 +66,25 @@ Go to R and run flat2Cdf
 ```
 library(affxparser)
 source("/Users/emagene/Dropbox/codes/github/lncAnnotations/flat2Cdf.R")
-### remember: gene 1.0st >> 1050*1050 ; gene 2.0st >> 1600*1600
+### remember: gene 1.0st >> 1050*1050 ; gene 2.0st >> 1612*1612
 ### remember: gene-level annotation gcol=6, transcript-level annotation gcol=5)
-flat2Cdf("hugene20st_Hs_GENECODET.flat", chipType="Gene2.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1600, cols= 1600, xynames=c("X","Y"), ucol=5, gcol=5)
+flat2Cdf("hugene20st_Hs_GENECODET.flat", chipType="Gene2.0st.lncrna.genes", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1612, cols= 1612, xynames=c("X","Y"), ucol=5, gcol=5)
+#flat2Cdf("/Users/emagene/Dropbox/on.going.papers/lncrna.annotations/hugene20st_Hs_GENECODET_21.0.0/NEAT1mod/hugene20st_Hs_GENECODET.NEAT1mod.flat", chipType="Gene2.0st.lncrna.NEAT1mod", tag="v21", col.class=c("character","integer","integer","character","character","character"), rows=1612, cols= 1612, xynames=c("X","Y"), ucol=5, gcol=5)
+
 ```
 3. Make CDF package
 ```
 library(makecdfenv)
 make.cdf.package("Gene1.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
-#make.cdf.package("Gene2.0st.lncrna.genes.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
+#make.cdf.package("Gene2.0st.lncrna.NEAT1mod.v21.cdf", compress = FALSE, species="Homo_sapiens", unlink=TRUE)
 ```
 4. install library then load into R
 ```
-# R CMD build --force gene2.0st.lncrna.genes.v21cdf
-# R CMD INSTALL gene2.0st.lncrna.genes.v21cdf_1.50.0.tar.gz
+# R CMD build --force gene2.0st.lncrna.NEAT1mod.v21cdf
+# R CMD INSTALL gene2.0st.lncrna.NEAT1mod.v21cdf_1.50.0.tar.gz
 library(gene1.0st.lncrna.genes.v21cdf)
+#library(gene2.0st.lncrna.neat1mod.v21cdf)
+
 ```
 5. run affy package & good luck
 
